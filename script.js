@@ -30,15 +30,34 @@ const folderList = [
 ];
 
 /* ----------------- Parseo ----------------- */
+const customNames = {
+    "Spinoffs": "Spin offs",
+    "TouhouArg": "Touhou Arg",
+    "Fangames": "Fan games"
+        // Agregá más si querés
+};
+
 function parseFolderString(s) {
     const m = s.match(/^(\d+)_(.+)-(\d+)_(\d+)$/);
     if (!m) return null;
+
     const order = parseInt(m[1], 10);
-    const name = m[2];
+
+    const rawName = m[2];
+
+    // Nombre final = personalizado o auto-formateado
+    const name =
+        customNames[rawName] ||
+        rawName
+        .replace(/([a-z])([A-Z])/g, "$1 $2") // separa palabras por mayúsculas internas
+        .replace(/([A-Za-z])(\d)/g, "$1 $2"); // separa letra+numero
+
     const start = parseInt(m[3], 10);
     const end = parseInt(m[4], 10);
+
     return { folder: s, order, name, start, end, pages: end - start + 1 };
 }
+
 const segments = folderList.map(parseFolderString).filter(Boolean);
 const TOTAL_GLOBAL_PAGES = segments.reduce((mx, seg) => Math.max(mx, seg.end), 0);
 
@@ -101,7 +120,7 @@ function getSegmentForGlobal(globalPage) {
 
 function globalToRealPath(globalPage) {
     const info = getSegmentForGlobal(globalPage);
-    return `paginas/${encodeFolder(info.segment.folder)}/${globalPage}.png`;
+    return `paginas/${encodeFolder(info.segment.folder)}/${globalPage}.webp`;
 }
 
 /* ----------------- Precarga ----------------- */
